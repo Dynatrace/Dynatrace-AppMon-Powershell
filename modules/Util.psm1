@@ -22,7 +22,7 @@ Function Get-FilesFromMSI([string]$Installer, [string]$InstallPath)
 		{
 			"Extract Files From Installer..."
 			$arg = "/a $Installer /qn TARGETDIR=""$InstallPath"""
-			$ret = exec "msiexec" $arg
+			$ret = Wait-For "msiexec" $arg
 			if ($ret -gt 0)
 			{
 				"'msiexec $arg' failed, return code is " + ($ret -as [string])
