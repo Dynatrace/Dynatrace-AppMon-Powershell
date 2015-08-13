@@ -1,9 +1,24 @@
-﻿[CmdletBinding()]
+﻿<#
+.SYNOPSIS
+    Enables Dynatrace Webserver (slave) agent in IIS as a native module named 'Dynatrace Webserver Agent'
+.DESCRIPTION
+    Checks if module is already installed. If 
+.PARAMETER InstallPath
+    "root" directory of the Dynatrace agent's. Agent DLL's are referenced relative from this directory <InstallPath>\agent\lib\dtagent.dll
+.PARAMETER -Use64Bit
+    Switch to force usage of 64-bit agent
+.Parameter -ForceIISReset
+    Switch to force restart of IIS (only if module hasn't already been installed) 
+#>
+
+[CmdletBinding()]
 param(
 	[Parameter(Mandatory=$True)]
 	[string]$InstallPath,
 	
-	[Switch]$Use64Bit
+	[Switch]$Use64Bit, 
+
+    [Switch]$ForceIISReset
 )
 
 Set-ExecutionPolicy Unrestricted
@@ -22,9 +37,12 @@ if ($loadedModules.Length -eq 0)
     "No IIS Agent module found."
     Install-WebserverAgentModuleIIS $InstallPath $Use64Bit 
 
-    "Restart IIS"
-    Wait-For "iisreset"
-    iex "net start w3svc"
+    if ($ForceIISReset)
+    {
+        "Restart IIS"
+        Wait-For "iisreset"
+        iex "net start w3svc"
+    }
 }
 else
 {

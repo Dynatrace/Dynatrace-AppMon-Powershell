@@ -1,7 +1,25 @@
 #Requires –Modules Util, InstallWebserverAgent, InstallDotNETAgent
 
-Function Install-DynatraceASPNET([string]$Installer, [string]$InstallPath, [string]$CollectorHost, [string]$WebserverAgentName, [string]$DotNETAgentName, [Boolean]$Use64Bit )
+Function Install-DynatraceASPNET([string]$Installer, [string]$InstallPath, [string]$CollectorHost, [string]$WebserverAgentName, [string]$DotNETAgentName, [Boolean]$Use64Bit, [Boolean]$ForceIISReset )
 {
+<#
+.SYNOPSIS
+    Basic installation of Dynatrace agents for ASP.NET, which includes .NET agent monitoring for w3wp.exe, WaWorkerHost.exe and WaWebHost.exe as well as WebServer Agent for IIS (inclusive (master) Webserver Agent service)
+    Skips installation if InstallPath already exists.
+.PARAMETER
+    Full path to the agent's MSI installer.
+.PARAMETER InstallPath
+    "root" directory of the Dynatrace agent's. Agent DLL's are referenced relative from this directory <InstallPath>\agent\lib\dtagent.dll
+.PARAMETER CollectorHost
+    <HostnameOrIP>[:Port]
+.PARAMETER WebserverAgentName
+    Webserver agent's name as shown in Dynatrace
+.PARAMETER DotNETAgentName
+    .NET agent's name as shown in Dynatrace
+.PARAMETER Use64Bit
+    Boolean value to force usage of 64-bit agent
+#>
+
 	if (!(Test-Path $InstallPath)) #already installed?
 	{
 		if (!(Test-Path $Installer)) 
@@ -31,9 +49,12 @@ Function Install-DynatraceASPNET([string]$Installer, [string]$InstallPath, [stri
 																					 "WaWorkerHost.exe", 
 																					 "WaWebHost.exe")
 
-			"Restart IIS"
-			Wait-For "iisreset"
-			iex "net start w3svc"
+            if ($ForceIISReset)
+            {
+			    "Restart IIS"
+			    Wait-For "iisreset"
+			    iex "net start w3svc"
+            }
 		}
 	}
 	else

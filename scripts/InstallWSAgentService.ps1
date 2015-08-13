@@ -1,4 +1,17 @@
-﻿[CmdletBinding()]
+﻿<#
+.SYNOPSIS
+    Installs Dynatrace (master) Webserver Agent as Windows Service. 
+.DESCRIPTION
+    If service already installed, configuration is updated. If configuration has changed, service will be restarted.
+.PARAMETER InstallPath
+    "root" directory of the Dynatrace agent's. Configuration is referenced relative from this directory <InstallPath>\agent\conf\dtwsagent.ini
+.PARAMETER JSONConfig
+    JSON string containing an object with the the configuration. 
+    Example:
+    '{ "Name": "IIS", "Server": "localhost", "Loglevel": "info" }'
+#>
+
+[CmdletBinding()]
 param(
 	[Parameter(Mandatory=$True)]
 	[string]$InstallPath,
@@ -8,7 +21,7 @@ param(
 )
 
 Import-Module "../modules/Util" 
-Import-Module "../modules/InstallWebserverAgent" -Verbose
+Import-Module "../modules/InstallWebserverAgent" 
 
 Set-ExecutionPolicy Unrestricted
 
@@ -29,17 +42,20 @@ else
 {
 
     $iniContent = Get-IniContent "$InstallPath\agent\conf\dtwsagent.ini"
-     
-    "Checking configuration changes..."    
+    
+    $configChanged = $FALSE
+    "Checking configuration changes..."
 	foreach ($e in $hashTable.GetEnumerator()) 
     {
 		 "Validate key '$($e.Name)'..."
          if ($iniContent[$e.Name] -ne $e.Value)
          {
-            "Failed."
+            "mismatch."
             Set-WebserverAgentConfiguration $InstallPath $hashTable
             "Restarting Webserver Agent..."
             Restart-Service $ServiceName
+
+            $configChanged = $TRUE
             break;
          }
          else
@@ -47,6 +63,10 @@ else
             "Ok."
          }
 	}
+    if ($configChanged -eq $FALSE)
+    {
+        "Resetting" 
+    }
 
     
 }

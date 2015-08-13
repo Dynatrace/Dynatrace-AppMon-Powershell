@@ -2,6 +2,19 @@
 
 Function Install-DynatraceInWebRole( )
 {
+<#
+.SYNOPSIS
+    Installs Dynatrace agents in Microsoft Azure Cloud-Service's WebRole. 
+.DESCRIPTION
+    Reads configuration from RoleEnvironemnt: 
+    DTCollectorHost        ... [required] <HostnameOrIP>[:Port] 
+    DTInstaller            ... [required] Name of the Dynatrace agent MSI-Installer file deployed with the application.
+    DTInstallPath          ... [optional] Path where Dynatrace should be installed. Default: E:\sitesroot\0\App_Data\Dynatrace
+    DTWebserverAgentName   ... [optional] Default: IIS
+    DTDotNETAgentName      ... [optional] Default: ASP.NET
+    DTUse64Bit             ... [optional] Default: True
+        
+#>
 
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.WindowsAzure.ServiceRuntime")
 
@@ -69,7 +82,7 @@ Function Install-DynatraceInWebRole( )
 	[System.Environment]::SetEnvironmentVariable('DT_AZURE_ROLENAME',$roleName, $EnvironmentVariableTarget) 
 	[System.Environment]::SetEnvironmentVariable('DT_AZURE_INSTANCEID',$instanceId, $EnvironmentVariableTarget) 
 
-	Install-DynatraceASPNET -Installer $Installer  -InstallPath $InstallPath -CollectorHost $CollectorHost -WebserverAgentName $WebserverAgentName -DotNETAgentName $DotNETAgentName -use64Bit $TRUE
+	Install-DynatraceASPNET -Installer $Installer  -InstallPath $InstallPath -CollectorHost $CollectorHost -WebserverAgentName $WebserverAgentName -DotNETAgentName $DotNETAgentName -Use64Bit $TRUE -ForceIISReset $TRUE
 	
 }
 
