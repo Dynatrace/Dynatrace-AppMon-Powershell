@@ -2,7 +2,13 @@ Function Set-WhitelistProcess([int]$Index, [string]$NetProcess, [string]$AgentNa
 {
 <#
 .SYNOPSIS
-Configures additional process to be monitored  with the Dynatrace .NET agent. 
+Configures additional process to be monitored with the Dynatrace .NET agent. 
+.PARAMETER Index
+Record index for whitelisted processes within the registry. Start-Index = 1   
+.PARAMETER NetProcess
+Processname to whitelist. e.g. "w3wp.exe". Optionally supports process arguments. e.g. "w3wp.exe -ap \"DefaultAppPool\""
+.PARAMETER AgentName
+Agentname to show in Dynatrace
 #>
 
   $regPath = "HKLM:\SOFTWARE\Wow6432Node\dynaTrace"
@@ -17,11 +23,17 @@ Configures additional process to be monitored  with the Dynatrace .NET agent.
   $regPath = $regPath + "\" + ($Index -as [string])
   if (!(Test-Path $regPath)) { md $regPath }
 
-  "Setting up .NET Agent for '" + $netProcess + "'..."
+  $process,$args = $NetProcess -split ' ',2
+
+  "Setting up .NET Agent for '" + $NetProcess + "'..."
 	Set-ItemProperty -Path $regPath -Name "active" -Value "TRUE"
 	Set-ItemProperty -Path $regPath -Name "path" -Value "*"
 	Set-ItemProperty -Path $regPath -Name "name" -Value $AgentName
-	Set-ItemProperty -Path $regPath -Name "exec" -Value $NetProcess
+	Set-ItemProperty -Path $regPath -Name "exec" -Value $process
+    if ($args.Length -gt 0)
+    {
+        Set-ItemProperty -Path $regPath -Name "cmdline" -Value $args
+    }
 }
 
 Function Test-DotNETAgentInstallation
@@ -65,7 +77,7 @@ Function Enable-DotNETAgent([string] $InstallPath, [string]$AgentName, [string]$
 .PARAMETER Use64Bit
     Boolean value to force usage of 64-bit agent
 .PARAMETER ProcessList
-    string array of processes to whitelist. 
+    string array of processes to whitelist. Supports optional process arguments. e.g. "w3wp.exe -ap \"DefaultAppPool\""
     NOTE: If NO processes are whitelisted, agent instruments ALL .NET processes when they are started!
 .NOTE 
     NOTE: If NO processes are whitelisted, agent instruments ALL .NET processes when they are started!

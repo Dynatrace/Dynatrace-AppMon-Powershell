@@ -13,8 +13,8 @@
     <HostnameOrIP>[:Port]
 .PARAMETER Use64Bit
     Boolean value to force usage of 64-bit agent
-.PARAMETER ProcessList
-    JSON string array of processes to whitelist. 
+.PARAMETER JSONProcessList
+    JSON string array of processes to whitelist. Optionally supports process arguments. e.g. "w3wp.exe -ap \"DefaultAppPool\""
 	Example: '[ "w3wp.exe", "WaWorkerHost.exe", "WaWebHost.exe" ]'
     NOTE: If NO processes are whitelisted, agent instruments ALL .NET processes when they are started!
 .NOTE 
