@@ -14,7 +14,8 @@
 .PARAMETER Use64Bit
     Boolean value to force usage of 64-bit agent
 .PARAMETER ProcessList
-    string array of processes to whitelist. 
+    JSON string array of processes to whitelist. 
+	Example: '[ "w3wp.exe", "WaWorkerHost.exe", "WaWebHost.exe" ]'
     NOTE: If NO processes are whitelisted, agent instruments ALL .NET processes when they are started!
 .NOTE 
     NOTE: If NO processes are whitelisted, agent instruments ALL .NET processes when they are started!
@@ -32,13 +33,14 @@ param(
     
     [Switch]$Use64Bit, 
     
-    [Array] $ProcessList
+    [string] $JSONProcessList
 )
 
 Import-Module "../modules/Util" 
 Import-Module "../modules/InstallDotNETAgent" 
 
 Set-ExecutionPolicy Unrestricted
+
 
 $res = Test-DotNETAgentInstallation
 if ($res -eq 0)
@@ -48,6 +50,8 @@ if ($res -eq 0)
         "Resetting .NET configuration... "
         Remove-WhitelistedProcesses
     }
+
+    $ProcessList = $JSONProcessList | ConvertFrom-Json
 
     Enable-DotNETAgent $InstallPath $AgentName $CollectorHost $Use64Bit $ProcessList
     
