@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Installs Dynatrace agents in Microsoft Azure Cloud-Service WebRole. 
+    Installs Dynatrace agents in Microsoft Azure Cloud-Service's WorkerRole. 
 .DESCRIPTION
     Reads configuration from RoleEnvironemnt: 
     DTCollectorHost        ... [required] <HostnameOrIP>[:Port] 
@@ -25,17 +25,17 @@ Import-Module "../modules/AzureCloudServiceAgentSetup"
 
 if ($InstallerPath.Length -gt 0)
 {
-	"Switching ScriptRoot '$InstallerPath'"
+	"Switching ScriptRoot '$InstallerPath'" 
 	Push-Location
 		"$PSScriptRoot"
 		Set-Location -Path $InstallerPath
-		Install-DynatraceInWebRole
+		Install-DynatraceInWorkerRole
 	Pop-Location
 	"ScriptRoot restored."
 	"$PSScriptRoot"
 }
 else
 {
-	Install-DynatraceInWebRole
+	Install-DynatraceInWorkerRole
 }
 

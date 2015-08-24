@@ -5,7 +5,7 @@ This repository contains a set of PowerShell scripts and -modules to deploy Dyna
 ###Agents
 - Install, Uninstall and Re-Configure without running the installer. 
 - .NET Agent, Webserver Agent for IIS 7+ (Slave), Webserver Agent Service (Master)
-- Windows Server 2008+, Azure Cloud-Service WebRole 
+- Windows Server 2008+, Azure Cloud-Service WebRole and WorkerRole
 
 ###What's next?
 - Collector
