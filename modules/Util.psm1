@@ -48,6 +48,9 @@ Function Get-FilesFromMSI([string]$Installer, [string]$InstallPath)
 				"'msiexec $arg' failed, return code is " + ($ret -as [string])
 			}
 			"Complete."
+
+			"Delete 'dynaTraceWebServerSharedMemory'"
+            Remove-Item "$InstallPath\agent\conf\dynaTraceWebServerSharedMemory"
 		}
 	}
     else

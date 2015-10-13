@@ -39,6 +39,9 @@ Function Install-DynatraceASPNET([string]$Installer, [string]$InstallPath, [stri
 			}
 			"Complete."
 
+            "Delete 'dynaTraceWebServerSharedMemory'"
+            Remove-Item "$InstallPath\agent\conf\dynaTraceWebServerSharedMemory" 
+
 			Set-WebserverAgentConfiguration $InstallPath @{ Name = $WebserverAgentName
 											 Server = $CollectorHost
 											 Loglevel = 'info' }
@@ -55,6 +58,9 @@ Function Install-DynatraceASPNET([string]$Installer, [string]$InstallPath, [stri
 			    Wait-For "iisreset"
 			    iex "net start w3svc"
             }
+
+			
+	
 		}
 	}
 	else
