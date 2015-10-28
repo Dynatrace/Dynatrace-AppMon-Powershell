@@ -43,7 +43,7 @@ Set-ExecutionPolicy Unrestricted
 
 
 $res = Test-DotNETAgentInstallation
-if ($res -eq 0)
+if ($res -ge 0)
 {
     if ($res -eq 1)
     {
