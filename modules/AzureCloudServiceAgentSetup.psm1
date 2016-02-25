@@ -64,7 +64,7 @@ Function Install-DynatraceInWebRole( )
 	catch { "Failed to read 'DTInstallPath', default is '$InstallPath'" }
 	
 	$WebserverAgentName='IIS'
-	try { $WSAgentName = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTWebserverAgentName") }
+	try { $WebserverAgentName = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTWebserverAgentName") }
 	catch { "Failed to read 'DTWebserverAgentName', default is '$WebserverAgentName'" }
 	
 	$DotNETAgentName='ASP.NET'
