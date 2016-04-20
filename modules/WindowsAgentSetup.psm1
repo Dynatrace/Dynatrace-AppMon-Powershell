@@ -113,3 +113,18 @@ Function Install-DynatraceDotNET([string]$Installer, [string]$InstallPath, [stri
 		"Dynatrace already installed - setup skipped!"
 	}
 }
+
+
+Function Disable-WebserverAgent([Boolean]$64Bit)
+{
+<#
+.SYNOPSIS
+	Disables Webserver agent (removing iis modules and webserver agent service).
+.PARAMETER Use64Bit
+    Boolean value indicating to remove the 64-bit IIS module or the 32-bit version
+#>
+	"Removing IIS agent configuration"
+	Uninstall-WebserverAgentModule $64Bit
+	Uninstall-WebserverAgentService "Dynatrace Webserver Agent"
+	"IIS agent configuration removed."
+}

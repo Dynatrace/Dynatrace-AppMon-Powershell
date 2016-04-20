@@ -75,15 +75,26 @@ Function Install-DynatraceInWebRole( )
 	try { $use64Bit = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTUse64Bit") }
 	catch { "Failed to read 'DTUse64Bit', default is '$use64Bit'" }
 
-	"Complete."
+	"Configuration Complete."
 	
 	"Set Special Agent flags for Azure"
 	$EnvironmentVariableTarget = 'Machine'
 	[System.Environment]::SetEnvironmentVariable('DT_AZURE_ROLENAME',$roleName, $EnvironmentVariableTarget) 
 	[System.Environment]::SetEnvironmentVariable('DT_AZURE_INSTANCEID',$instanceId, $EnvironmentVariableTarget) 
 
-	Install-DynatraceASPNET -Installer $Installer  -InstallPath $InstallPath -CollectorHost $CollectorHost -WebserverAgentName $WebserverAgentName -DotNETAgentName $DotNETAgentName -Use64Bit $use64Bit -ForceIISReset $TRUE
-	
+	if (!(Test-Path $InstallPath)) #already installed?
+	{
+		if (Test-DotNETAgentInstallation -eq 1) #check for in-place update (to handle changed drive-letter on application drive)
+		{
+			 Disable-WebserverAgent $use64Bit
+		}
+
+		Install-DynatraceASPNET -Installer $Installer  -InstallPath $InstallPath -CollectorHost $CollectorHost -WebserverAgentName $WebserverAgentName -DotNETAgentName $DotNETAgentName -Use64Bit $use64Bit -ForceIISReset $TRUE
+	}
+	else
+	{
+		"Dynatrace already installed - setup skipped!"
+	}
 }
 
 Function Install-DynatraceInWorkerRole( )
