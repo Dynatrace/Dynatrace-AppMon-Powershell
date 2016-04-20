@@ -59,7 +59,7 @@ Function Install-DynatraceInWebRole( )
 		return 
 	}
 
-	$InstallPath = 'E:\sitesroot\0\App_Data\Dynatrace'
+	$InstallPath =  [System.Environment]::GetEnvironmentVariable('RoleRoot', 'Process')+'\sitesroot\0\App_Data\Dynatrace'
 	try { $InstallPath = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTInstallPath") }
 	catch { "Failed to read 'DTInstallPath', default is '$InstallPath'" }
 	
@@ -144,7 +144,7 @@ Function Install-DynatraceInWorkerRole( )
 		return 
 	}
 
-	$InstallPath = 'E:\approot\Dynatrace'
+	$InstallPath =  [System.Environment]::GetEnvironmentVariable('RoleRoot', 'Process')+'\approot\Dynatrace'
 	try { $InstallPath = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTInstallPath") }
 	catch { "Failed to read 'DTInstallPath', default is '$InstallPath'" }
 	
