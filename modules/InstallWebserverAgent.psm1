@@ -15,6 +15,11 @@ Function Set-WebserverAgentConfiguration([string]$InstallPath, [PSObject]$Config
        Loglevel = 'info' } 
 #>
 	"Writing Webserver Agent Config..."
+
+	if (!(Test-Path "$InstallPath\agent\conf\")) {
+		New-Item -ItemType Directory -Force -Path "$InstallPath\agent\conf\"
+	}
+
 	$stream = [System.IO.StreamWriter] "$InstallPath\agent\conf\dtwsagent.ini"
 	
 	foreach ($e in $Config.GetEnumerator()) {
