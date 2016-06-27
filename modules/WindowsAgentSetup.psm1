@@ -69,6 +69,51 @@ Function Install-DynatraceASPNET([string]$Installer, [string]$InstallPath, [stri
 	}
 }
 
+Function Enable-DynatraceASPNET([string]$InstallPath, [string]$CollectorHost, [string]$WebserverAgentName, [string]$DotNETAgentName, [Boolean]$Use64Bit, [Boolean]$ForceIISReset )
+{
+<#
+.SYNOPSIS
+    Enables Dynatrace agents for ASP.NET, which includes .NET agent monitoring for w3wp.exe as well as WebServer Agent for IIS (inclusive (master) Webserver Agent service)
+    Requires that agents are already deployed in installpath. 
+.PARAMETER InstallPath
+    "root" directory of the Dynatrace agent's. Agent DLL's are referenced relative from this directory <InstallPath>\agent\lib\dtagent.dll
+.PARAMETER CollectorHost
+    <HostnameOrIP>[:Port]
+.PARAMETER WebserverAgentName
+    Webserver agent's name as shown in Dynatrace
+.PARAMETER DotNETAgentName
+    .NET agent's name as shown in Dynatrace
+.PARAMETER Use64Bit
+    Boolean value to force usage of 64-bit agent
+.PARAMETER ForceIISReset
+    Forces IISReset at the end of installation. If installation is skipped, no IISReset is performed.
+#>
+
+	if (Test-Path $InstallPath) #already installed?
+	{
+		Set-WebserverAgentConfiguration $InstallPath @{ Name = $WebserverAgentName
+											Server = $CollectorHost
+											Loglevel = 'info' }
+
+		Install-WebserverAgentService "Dynatrace Webserver Agent" $InstallPath 
+
+		Install-WebserverAgentModuleIIS $InstallPath $Use64Bit 
+
+		Enable-DotNETAgent $InstallPath $DotNETAgentName $CollectorHost $Use64Bit @( "w3wp.exe" )
+
+        if ($ForceIISReset)
+        {
+			"Restart IIS"
+			Wait-For "iisreset"
+			iex "net start w3svc"
+        }
+
+	}
+	else
+	{
+		"Dynatrace not found - setup skipped!"
+	}
+}
 
 Function Install-DynatraceDotNET([string]$Installer, [string]$InstallPath, [string]$CollectorHost, [string]$DotNETAgentName, [Boolean]$Use64Bit, [Array]$ProcessList )
 {

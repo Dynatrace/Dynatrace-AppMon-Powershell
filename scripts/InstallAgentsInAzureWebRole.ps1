@@ -5,7 +5,7 @@
     Reads configuration from RoleEnvironemnt: 
     DTCollectorHost        ... [required] <HostnameOrIP>[:Port] 
     DTInstaller            ... [required] Name of the Dynatrace agent MSI-Installer file deployed with the application.
-    DTInstallPath          ... [optional] Path where Dynatrace should be installed. Default: E:\sitesroot\0\App_Data\Dynatrace
+    DTInstallPath          ... [optional] Path where Dynatrace should be installed. Default: %RoleRoot%\sitesroot\0\App_Data\Dynatrace
     DTWebserverAgentName   ... [optional] Default: IIS
     DTDotNETAgentName      ... [optional] Default: ASP.NET
     DTUse64Bit             ... [optional] Default: True
