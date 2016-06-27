@@ -4,12 +4,12 @@ Function Install-DynatraceInWebRole( )
 {
 <#
 .SYNOPSIS
-    Installs Dynatrace agents in Microsoft Azure Cloud-Service's WebRole. 
+    Installs Dynatrace agents in Microsoft Azure Cloud-Service's WebRole. Requires dynatrace agent installer deployed on the webrole.
 .DESCRIPTION
     Reads configuration from RoleEnvironment: 
     DTCollectorHost        ... [required] <HostnameOrIP>[:Port] 
     DTInstaller            ... [required] Name of the Dynatrace agent MSI-Installer file deployed with the application.
-    DTInstallPath          ... [optional] Path where Dynatrace should be installed. Default: E:\sitesroot\0\App_Data\Dynatrace
+    DTInstallPath          ... [optional] Path where Dynatrace should be installed. Default: %RoleRoot%\sitesroot\0\App_Data\Dynatrace
     DTWebserverAgentName   ... [optional] Default: IIS
     DTDotNETAgentName      ... [optional] Default: ASP.NET
     DTUse64Bit             ... [optional] Default: True
@@ -97,11 +97,100 @@ Function Install-DynatraceInWebRole( )
 	}
 }
 
+Function Enable-DynatraceInWebRole( )
+{
+<#
+.SYNOPSIS
+    Enables Dynatrace agents in Microsoft Azure Cloud-Service's WebRole. Requires dynatrace agent binaries deployed on the webrole.
+.DESCRIPTION
+    Reads configuration from RoleEnvironment: 
+    DTCollectorHost        ... [required] <HostnameOrIP>[:Port] 
+    DTInstallPath          ... [optional] Path where Dynatrace should be installed. Default: %RoleRoot%\sitesroot\0\App_Data\Dynatrace
+    DTWebserverAgentName   ... [optional] Default: IIS
+    DTDotNETAgentName      ... [optional] Default: ASP.NET
+    DTUse64Bit             ... [optional] Default: True
+        
+#>
+
+    [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.WindowsAzure.ServiceRuntime")
+
+	# Only run within an Azure Cloud Service 
+	try
+	{
+	  if (![Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::IsAvailable)
+	  {
+		"RoleEnvironment is not available"
+		return
+	  }
+	}
+	catch
+	{
+	  "RoleEnvironment is not available"
+	  return
+	}
+
+	# Don't install in emulated mode
+	if ([Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::IsEmulated)
+	{
+		"Do not install in emulator"
+		return
+	}
+
+	$instanceId = ([Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::CurrentRoleInstance.Id)
+	$roleName = ([Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::CurrentRoleInstance.Role.Name)
+
+	"Reading Configuration..."
+	
+	try { $CollectorHost = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTCollectorHost") }
+	catch 
+	{ 
+		"Failed to read 'DTCollectorHost'" 
+		return 
+	}
+
+	$InstallPath =  [System.Environment]::GetEnvironmentVariable('RoleRoot', 'Process')+'\sitesroot\0\App_Data\Dynatrace'
+	try { $InstallPath = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTInstallPath") }
+	catch { "Failed to read 'DTInstallPath', default is '$InstallPath'" }
+	
+	$WebserverAgentName='IIS'
+	try { $WebserverAgentName = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTWebserverAgentName") }
+	catch { "Failed to read 'DTWebserverAgentName', default is '$WebserverAgentName'" }
+	
+	$DotNETAgentName='ASP.NET'
+	try { $DotNETAgentName = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTDotNETAgentName") }
+	catch { "Failed to read 'DTDotNETAgentName', default is '$DotNETAgentName'"  }
+	
+	$use64Bit = $TRUE
+	try { $use64Bit = [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetConfigurationSettingValue("DTUse64Bit") }
+	catch { "Failed to read 'DTUse64Bit', default is '$use64Bit'" }
+
+	"Configuration Complete."
+	
+	"Set Special Agent flags for Azure"
+	$EnvironmentVariableTarget = 'Machine'
+	[System.Environment]::SetEnvironmentVariable('DT_AZURE_ROLENAME',$roleName, $EnvironmentVariableTarget) 
+	[System.Environment]::SetEnvironmentVariable('DT_AZURE_INSTANCEID',$instanceId, $EnvironmentVariableTarget) 
+
+	if (Test-Path $InstallPath) #already installed?
+	{
+		if (Test-DotNETAgentInstallation -eq 1) #check for in-place update (to handle changed drive-letter on application drive)
+		{
+			 Disable-WebserverAgent $use64Bit
+		}
+
+		Enable-DynatraceASPNET -InstallPath $InstallPath -CollectorHost $CollectorHost -WebserverAgentName $WebserverAgentName -DotNETAgentName $DotNETAgentName -Use64Bit $use64Bit -ForceIISReset $TRUE
+	}
+	else
+	{
+		"Dynatrace not installed - setup skipped!"
+	}
+}
+
 Function Install-DynatraceInWorkerRole( )
 {
 <#
 .SYNOPSIS
-    Installs Dynatrace agents in Microsoft Azure Cloud-Service's WebRole. 
+    Installs Dynatrace agents in Microsoft Azure Cloud-Service's WebRole. Requires dynatrace agent installer deployed on the webrole.
 .DESCRIPTION
     Reads configuration from RoleEnvironment: 
     DTCollectorHost        ... [required] <HostnameOrIP>[:Port] 
