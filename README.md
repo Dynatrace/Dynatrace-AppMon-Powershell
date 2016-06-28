@@ -1,5 +1,5 @@
 # Dynatrace-Powershell
-This repository contains a set of PowerShell scripts and -modules to deploy Dynatrace on Microsoft Windows and Azure. 
+This repository contains a set of PowerShell scripts and -modules to automate Dynatrace AppMon deployments on Microsoft Windows and Azure. 
 
 ##Features
 ###Agents
@@ -7,10 +7,23 @@ This repository contains a set of PowerShell scripts and -modules to deploy Dyna
 - .NET Agent, Webserver Agent for IIS 7+ (Slave), Webserver Agent Service (Master)
 - Windows Server 2008+, Azure Cloud-Service WebRole and WorkerRole
 
-###What's next?
-- Collector
-- Java Agent
+##Folders
+###/modules/
+A set of functionality to build up automation scripts around dynatrace.
+ 
+***For further information see documentation within the modules***
 
+###/scripts/
+Contains blueprint scripts covering common use-cases:
+
+- **InstallAgentsInAzureWebRole.ps1** Installs .NET and IIS agents in Microsoft Azure Cloud-Service WebRole. For a detailed tutorial see [How to deploy Dynatrace Agents in MS Azure Cloud-Service](https://community.dynatrace.com/community/display/LEARN/How+to+deploy+Dynatrace+Agents+in+MS+Azure+Cloud-Service) 
+- **InstallAgentsInAzureWorkerRole.ps1** Installs .NET agent in a Microsoft Azure Cloud-Service WorkerRole.For a detailed tutorial see [How to deploy Dynatrace Agents in MS Azure Cloud-Service](https://community.dynatrace.com/community/display/LEARN/How+to+deploy+Dynatrace+Agents+in+MS+Azure+Cloud-Service) 
+- **InstallDotNetAgent.ps1** Enables Dynatrace .NET agent.
+- **InstallWSAgentModuleIIS.ps1** Enables Dynatrace Webserver (slave) agent in IIS as a native module
+- **InstallWSAgentService.ps1** Installs Dynatrace (master) Webserver Agent as Windows Service.
+- **InstallMSI.ps1** Extracts files from an MSI-installer without executing the installer.
+
+***For detailed infos on parameters, see the documentation within the scripts***  
 
 ## License
 [Dynatrace BSD](https://community.dynatrace.com/community/download/attachments/5144912/dynaTraceBSD.txt?version=3&modificationDate=1365418216030&api=v2)
