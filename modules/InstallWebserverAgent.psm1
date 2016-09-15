@@ -45,11 +45,11 @@ Function Install-WebserverAgentModuleIIS([string]$InstallPath, [Boolean]$Use64Bi
 
 	if ($Use64Bit)
 	{
-		$arguments =  "install module /name:'Dynatrace Webserver Agent (64bit)' /image:'$InstallPath\agent\lib64\dtagent.dll' /add:true /lock:true"
+		$arguments =  "install module /name:'Dynatrace Webserver Agent (64bit)' /image:'$InstallPath\agent\lib64\dtagent.dll' /add:true /lock:true /preCondition:bitness64"
 	}
 	else
 	{
-		$arguments =  "install module /name:'Dynatrace Webserver Agent (32bit)' /image:'$InstallPath\agent\lib\dtagent.dll' /add:true /lock:true"
+		$arguments =  "install module /name:'Dynatrace Webserver Agent (32bit)' /image:'$InstallPath\agent\lib\dtagent.dll' /add:true /lock:true /preCondition:bitness32"
 	}
 
 	iex "$appcmd $arguments"
